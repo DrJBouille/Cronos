@@ -51,5 +51,5 @@ jobs:
         run: npm run build
         working-directory: cronos-web-app
       - name: Test
-        run: npm test -- --watch=false --browsers=ChromeHeadless
+        run: npm test -- --watch=false
         working-directory: cronos-web-app
