@@ -1,0 +1,55 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  compose-lint:
+    name: Validate compose file
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate compose configuration
+        run: |
+          cp .env.example .env
+          docker compose config --quiet
+
+  backend:
+    name: Backend (${{ matrix.module }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        module: [agent, panel]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: maven
+      - name: Build and test
+        run: ./mvnw -B verify
+        working-directory: ${{ matrix.module }}
+
+  frontend:
+    name: Frontend
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: cronos-web-app/package-lock.json
+      - name: Install dependencies
+        run: npm ci
+        working-directory: cronos-web-app
+      - name: Build
+        run: npm run build
+        working-directory: cronos-web-app
+      - name: Test
+        run: npm test -- --watch=false --browsers=ChromeHeadless
+        working-directory: cronos-web-app
