@@ -22,7 +22,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        module: [ agent, panel ]
+        module: [ cronos-agent, cronos-panel ]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v5
